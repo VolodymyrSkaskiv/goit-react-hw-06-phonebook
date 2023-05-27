@@ -1,25 +1,20 @@
-import css from './Filter.module.css';
-import PropTypes from 'prop-types';
+import { Input, Label } from './Filter.styled';
+import { setFilter } from 'redux/filterSlice'; // цей екшен викликає редюсер
+import { useDispatch, useSelector } from 'react-redux'; // хуки для роботи з редаксом
+import { getFilter } from 'redux/selectors'; // селектори для роботи з редаксом
 
-export const Filter = ({ filter, onChangeInput }) => {
+export const Filter = () => {
+  const dispatch = useDispatch();
+  const filter = useSelector(getFilter); // витягує значення фільтра з редакса
+
   return (
-    <>
-      <label>
-        Find contacts by name
-        <br />
-        <input
-          className={css.input}
-          onChange={onChangeInput}
-          value={filter}
-          type="text"
-          name="filter"
-        />
-      </label>
-    </>
+    <Label>
+      Find contacts by name
+      <Input
+        type="text"
+        value={filter}
+        onChange={event => dispatch(setFilter(event.target.value.trim()))} // викликає редюсер з екшеном setFilter
+      />
+    </Label>
   );
-};
-
-Filter.propTypes = {
-  filter: PropTypes.string.isRequired,
-  onChangeInput: PropTypes.func.isRequired,
 };

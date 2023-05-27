@@ -1,39 +1,39 @@
-import PropTypes from 'prop-types';
-import css from './ContactList.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts, getFilter } from 'redux/selectors';
+import { deleteContact } from 'redux/contactsSlice';
+import { Button, Item, List, Text } from './ContactList.styled'; // стилі компонента
 
-export const ContactList = ({ contacts, delContact }) => {
-  return (
-    <ul className={css.list}>
-      {/* Проходження по кожному контакту та повернення нового масиву з елементами списку */}
-      {contacts.map(contact => {
-        return (
-          <li className={css.item} key={contact.id}>
-            <span>{contact.name}:</span>
-            <span className={css.number}>{contact.number}</span>
-            <button
-              className={css.button}
-              type="button"
-              // Функція delContact в яку передається contact.id для видалення контакту зі списку.
-              onClick={() => {
-                delContact(contact.id);
-              }}
-            >
-              Delete
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+export const ContactList = () => {
+  const contacts = useSelector(getContacts); // функція, яка дозволяє витягнути дані зі стейта
+  const filter = useSelector(getFilter);
+  const dispatch = useDispatch(); // функція, яка дозволяє відправити екшн
+
+  // фільтруємо контакти по значенню фільтра
+  const filteredContacts = contacts?.filter(contact =>
+    contact?.name?.toLowerCase().includes(filter.toLowerCase())
   );
-};
 
-ContactList.propTypes = {
-  delContact: PropTypes.func.isRequired,
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ),
+  const onDeleteContact = id => {
+    dispatch(deleteContact(id)); // відправляємо екшн
+  };
+
+  if (!filteredContacts?.length) {
+    return <Text>No contacts found.</Text>;
+  }
+
+  return (
+    <List>
+      {/* мапимо контакти і виводимо їх на екран */}
+      {filteredContacts.map(({ id, name, number }) => (
+        <Item key={id}>
+          <Text>
+            {name}: {number}
+          </Text>
+          <Button type="button" onClick={() => onDeleteContact(id)}>
+            Delete
+          </Button>
+        </Item>
+      ))}
+    </List>
+  );
 };
